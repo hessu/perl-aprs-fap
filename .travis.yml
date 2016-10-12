@@ -1,0 +1,9 @@
+---
+language: perl
+before_script:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y libdate-calc-perl
+script:
+  - perl Makefile.PL
+  - make
+  - make test
