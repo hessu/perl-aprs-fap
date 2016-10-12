@@ -375,6 +375,7 @@ our $mph_to_kmh = 1.609344; # miles per hour to kilometers per hour
 our $kmh_to_ms = 10 / 36; # kilometers per hour to meters per second
 our $mph_to_ms = $mph_to_kmh * $kmh_to_ms; # miles per hour to meters per second
 our $hinch_to_mm = 0.254; # hundredths of an inch to millimeters
+our $feet_to_meters = 0.3048;
 
 =over
 
@@ -1190,7 +1191,7 @@ sub _comments_to_decimal($$$) {
 	# take the first occurrence
 	if ($rest =~ /^(.*?)\/A=(-\d{5}|\d{6})(.*)$/o) {
 		# convert to meters as well
-		$rethash->{'altitude'} = $2 * 0.3048;
+		$rethash->{'altitude'} = $2 * $feet_to_meters;
 		$rest = $1 . $3;
 	}
 
@@ -1949,7 +1950,7 @@ sub _compressed_to_decimal($$$)
 		# cs is altitude
 		my $cs = $c1 * 91 + $s1;
 		# convert directly to meters
-		$rethash->{'altitude'} = (1.002 ** $cs) * 0.3048;
+		$rethash->{'altitude'} = (1.002 ** $cs) * $feet_to_meters;
 	} elsif ($c1 >= 0 && $c1 <= 89) {
 		if ($c1 == 0) {
 			# special case of north, APRS spec
@@ -3284,7 +3285,7 @@ sub make_timestamp($$) {
 
 =over
 
-=item make_position($lat, $lon, $speed, $course, $altitude, $symbols, $usecompression, $posambiguity)
+=item make_position($lat, $lon, $speed, $course, $altitude, $symbols, $optionref)
 
 Creates an APRS position for position/object/item. Parameters:
 
@@ -3293,9 +3294,12 @@ Creates an APRS position for position/object/item. Parameters:
  3rd: speed in km/h, -1 == don't include
  4th: course in degrees, -1 == don't include. zero == unknown course, 360 == north
  5th: altitude in meters above mean sea level, -10000 or under == don't use
- 6th: aprs symbols to use, first table/overlay and then code (two bytes). If string length is zero (""), uses default.
- 7th: use compression (1) or not (0)
- 8th: use amount (0..4) of position ambiguity. Note that position ambiguity and compression can't be used at the same time.
+ 6th: aprs symbol to use, first table/overlay and then code (two bytes). If string length is zero (""), uses default.
+ 7th: hash reference for options:
+ 
+ "compressed": 1 for compressed format
+ "ambiguity": Use amount (0..4) of position ambiguity. Note that position ambiguity and compression can't be used at the same time.
+ "dao": Use !DAO! extension for improved precision
 
 Returns a string such as "1234.56N/12345.67E/CSD/SPD" or in
 compressed form "F*-X;n_Rv&{-A" or undef on error.
@@ -3309,17 +3313,15 @@ parameters should be changed to hash with named parameters.
 
 =cut
 
-sub make_position($$$$$$$$) {
+sub make_position($$$$$$;$)
+{
 # FIXME: course/speed/altitude are not supported yet,
 #        neither is compressed format or position ambiguity
-	my $lat = shift @_;
-	my $lon = shift @_;
-	my $speed = shift @_;
-	my $course = shift @_;
-	my $altitude = shift @_;
-	my $symbols = shift @_;
-	my $usecompression = shift @_;
-	my $posambiguity = shift @_;
+	my($lat, $lon, $speed, $course, $altitude, $symbol, $options) = @_;
+	
+	if (!$options) {
+		$options = { };
+	}
 
 	if ($lat < -89.99999 ||
 	    $lat > 89.99999 ||
@@ -3331,18 +3333,17 @@ sub make_position($$$$$$$$) {
 
 	my $symboltable = "";
 	my $symbolcode = "";
-	if (length($symbols) == 0) {
+	if (length($symbol) == 0) {
 		$symboltable = "/";
 		$symbolcode = "/";
-	} elsif ($symbols =~ /^([\/\\A-Z0-9])([\x21-\x7b\x7d])$/o) {
+	} elsif ($symbol =~ /^([\/\\A-Z0-9])([\x21-\x7b\x7d])$/o) {
 		$symboltable = $1;
 		$symbolcode = $2;
 	} else {
 		return undef;
 	}
 
-
-	if ($usecompression == 1) {
+	if ($options->{'compression'}) {
 		my $latval = 380926 * (90 - $lat);
 		my $lonval = 190463 * (180 + $lon);
 		my $latstring = "";
@@ -3392,9 +3393,10 @@ sub make_position($$$$$$$$) {
 			$isnorth = 0;
 		}
 		my $latdeg = int($lat);
-		my $latmin = sprintf("%04d", ($lat - $latdeg) * 6000);
+		my $latmin = sprintf("%04.0f", ($lat - $latdeg) * 6000);
 		my $latstring = sprintf("%02d%02d.%02d", $latdeg, substr($latmin, 0, 2), substr($latmin, 2, 2));
-		if ($posambiguity > 0 || $posambiguity <= 4) {
+		my $posambiguity = $options->{'ambiguity'};
+		if (defined $posambiguity && $posambiguity > 0 && $posambiguity <= 4) {
 			# position ambiguity
 			if ($posambiguity <= 2) {
 				# only minute decimals are blanked
@@ -3416,9 +3418,9 @@ sub make_position($$$$$$$$) {
 			$iseast = 0;
 		}
 		my $londeg = int($lon);
-		my $lonmin = sprintf("%04d", ($lon - $londeg) * 6000);
+		my $lonmin = sprintf("%04.0f", ($lon - $londeg) * 6000);
 		my $lonstring = sprintf("%03d%02d.%02d", $londeg, substr($lonmin, 0, 2), substr($lonmin, 2, 2));
-		if ($posambiguity > 0 || $posambiguity <= 4) {
+		if (defined $posambiguity && $posambiguity > 0 && $posambiguity <= 4) {
 			# position ambiguity
 			if ($posambiguity <= 2) {
 				# only minute decimals are blanked
@@ -3435,8 +3437,9 @@ sub make_position($$$$$$$$) {
 			$lonstring .= "W";
 		}
 		my $retstring = $latstring . $symboltable . $lonstring . $symbolcode;
+		
 		# add course/speed, if given
-		if ($speed >= 0 && $course >= 0) {
+		if (defined $speed && defined $course && $speed >= 0 && $course >= 0) {
 			# convert speed to knots
 			$speed = $speed / $knot_to_kmh;
 			if ($speed > 999) {
@@ -3447,6 +3450,17 @@ sub make_position($$$$$$$$) {
 			}
 			$retstring .= sprintf("%03d/%03d", $course, $speed);
 		}
+		
+		if (defined $altitude) {
+			$altitude = $altitude / $feet_to_meters;
+			# /A=(-\d{5}|\d{6})
+			if ($altitude >= 0) {
+				$retstring .= sprintf("/A=%06.0f", $altitude);
+			} else {
+				$retstring .= sprintf("/A=-%05.0f", $altitude * -1);
+			}
+		} 
+		
 		return $retstring;
 	}
 }
