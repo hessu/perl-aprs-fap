@@ -34,6 +34,7 @@ ok(make_position(52.364, 14.1045, undef, undef, undef, '/>', { 'ambiguity' => 4 
 # DAO
 ok(make_position(39.15380036630037, -84.62208058608059, undef, undef, undef, '/>', { 'dao' => 1 }),
 	'3909.22N/08437.32W>!wjM!', 'DAO position, US');
-# DAO with speed, course, altitude
-ok(make_position(48.37314835164835, 15.71477838827839, 62.968, 321, 192.9384, '/>', { 'dao' => 1 }),
-	'4822.38N/01542.88E>321/034/A=000633!wr^!', 'DAO position, EU');
+# DAO with speed, course, altitude, comment
+ok(make_position(48.37314835164835, 15.71477838827839, 62.968, 321, 192.9384, '/>', { 'dao' => 1, 'comment' => 'Comment blah' }),
+	'4822.38N/01542.88E>321/034/A=000633Comment blah!wr^!', 'DAO position, EU');
+

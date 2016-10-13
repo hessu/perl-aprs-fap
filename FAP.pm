@@ -3484,6 +3484,10 @@ sub make_position($$$$$$;$)
 			}
 		}
 		
+		if ($options->{'comment'}) {
+			$retstring .= $options->{'comment'};
+		}
+		
 		if ($options->{'dao'}) {
 			# !DAO! extension, use Base91 format for best precision
 			# /1.1 : scale from 0.99 to 0..90 for base91, int(... + 0.5): round to nearest integer
