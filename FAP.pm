@@ -2710,7 +2710,7 @@ sub parseaprs($$;%) {
 		return _dx_parse($1, $2, $rethash);
 		
 	# Experimental
-	} elsif ($body =~ /^{{/i) {
+	} elsif ($body =~ /^\{\{/i) {
 		_a_err($rethash, 'exp_unsupp');
 		return 0;
 		
