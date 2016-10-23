@@ -4,7 +4,7 @@
 
 use Test;
 
-BEGIN { plan tests => 15 };
+BEGIN { plan tests => 17 };
 use Ham::APRS::FAP qw(parseaprs);
 
 #
@@ -60,3 +60,14 @@ $retval = parseaprs($aprspacket, \%h);
 
 ok($retval, 0, "succeeded to parse a packet with bad symbol table");
 ok($h{'resultcode'}, 'sym_inv_table', "wrong result code");
+
+#
+# unsupported experimental  #########
+#
+
+$aprspacket = "ASDF>DSALK,OH2RDG*,WIDE:{{ unsupported experimental format";
+%h = ();
+$retval = parseaprs($aprspacket, \%h);
+
+ok($retval, 0, "succeeded to parse an experimental packet");
+ok($h{'resultcode'}, 'exp_unsupp', "wrong result code");
