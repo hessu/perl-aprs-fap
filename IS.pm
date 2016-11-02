@@ -142,6 +142,23 @@ sub disconnect($)
 	return 1;
 }
 
+sub user_command($)
+{
+	my($self) = @_;
+	
+	if (defined($self->{'filter'})) {
+		return sprintf("user %s pass %s vers %s filter %s\r\n",
+			$self->{'mycall'},
+			$self->{'passcode'},
+			$self->{'appid'}, $self->{'filter'} );
+	} else {
+		return sprintf("user %s pass %s vers %s\r\n",
+			$self->{'mycall'},
+			$self->{'passcode'},
+			$self->{'appid'} );
+	}
+}
+
 =head1 connect(options)
 
 Connects to the server. Returns 1 on success, 0 on failure.
@@ -213,18 +230,7 @@ sub connect($;%)
 	$self->{'sock'}->blocking(1);
 	$self->{'state'} = 'connected';
 	
-	my $s;
-	if (defined($self->{'filter'})) {
-		$s = sprintf("user %s pass %s vers %s filter %s\r\n",
-			$self->{'mycall'},
-			$self->{'passcode'}, # -- but we are read-only !
-			$self->{'appid'}, $self->{'filter'} );
-	} else {
-		$s = sprintf("user %s pass %s vers %s\r\n",
-			$self->{'mycall'},
-			$self->{'passcode'}, # -- but we are read-only !
-			$self->{'appid'} );
-	}
+	my $s = $self->user_command();
 	
 	#warn "login: $s\n";
 	if (!$self->{'sock'}->print($s)) {
