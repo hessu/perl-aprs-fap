@@ -3459,7 +3459,16 @@ sub make_position($$$$$$;$)
 		} else {
 			$lonstring .= "W";
 		}
-		my $retstring = $latstring . $symboltable . $lonstring . $symbolcode;
+		
+		my $retstring;
+		
+		if ($options->{'timestamp'}) {
+			my($sec,$min,$hour) = gmtime($options->{'timestamp'});
+			$retstring = sprintf('/%02d%02d%02dh', $hour, $min, $sec);
+		} else {
+			$retstring = '!';
+		}
+		$retstring .= $latstring . $symboltable . $lonstring . $symbolcode;
 		
 		# add course/speed, if given
 		if (defined $speed && defined $course && $speed >= 0 && $course >= 0) {
