@@ -2122,7 +2122,7 @@ sub _wx_parse($$)
 	} elsif ($s =~ s/^_{0,1}([\d \.\-]{3})\/([\d \.]{3})g([\d \.]+)//) {
 		#warn "$initial\nwind $1 / $2 gust $3\n";
 		($wind_dir, $wind_speed, $wind_gust) = ($1, $2, $3);
-	} elsif ($s =~ s/^g(\d+)t(-{0,1}[\d \.]+)//) {
+	} elsif ($s =~ s/^g([\d .]+)t(-{0,1}[\d \.]+)//) {
 		# g000t054r000p010P010h65b10073WS 2300 {UIV32N}
 		($wind_gust, $temp) = ($1, $2);
 	} else {
