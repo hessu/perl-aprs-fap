@@ -3463,8 +3463,19 @@ sub make_position($$$$$$;$)
 		my $retstring;
 		
 		if ($options->{'timestamp'}) {
-			my($sec,$min,$hour) = gmtime($options->{'timestamp'});
-			$retstring = sprintf('/%02d%02d%02dh', $hour, $min, $sec);
+			my $now = time();
+			
+			return undef if ($options->{'timestamp'} > $now+10);
+			
+			my $age = $now - $options->{'timestamp'};
+			
+			if ($age < 86400-1800) {
+				# less than 23h30min old, use HMS timestamp
+				my($sec,$min,$hour) = gmtime($options->{'timestamp'});
+				$retstring = sprintf('/%02d%02d%02dh', $hour, $min, $sec);
+			} elsif ($age < 28*86400) {
+				# TODO: could use DHM timestamp here
+			}
 		} else {
 			$retstring = '!';
 		}
