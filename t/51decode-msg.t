@@ -6,7 +6,7 @@ use Test;
 
 my @messageids = (1, 42, 10512, 'a', '1Ff84', 'F00b4');
 
-BEGIN { plan tests => 6 * (6 + 5 + 5)};
+BEGIN { plan tests => 6 * (7 + 6 + 6 + 5 + 5)};
 
 use Ham::APRS::FAP qw(parseaprs);
 
@@ -30,6 +30,34 @@ foreach my $messageid (@messageids) {
 	ok($h{'destination'}, $destination, "wrong message dst callsign");
 	ok($h{'messageid'}, $messageid, "wrong message id");
 	ok($h{'message'}, $message, "wrong message");
+	ok($h{'messageack'}, undef, "wrong message ack");
+	
+	# replyack format but no ack http://www.aprs.org/aprs11/replyacks.txt
+	$destination = "OH7LZB   ";
+	$aprspacket = "$srccall>$dstcall,WIDE1-1,WIDE2-2,qAo,OH7AA::$destination:$message\{$messageid\}";
+	$retval = parseaprs($aprspacket, \%h);
+	$destination =~ s/\s+$//; # whitespace will be stripped, ok...
+	
+	ok($retval, 1, "failed to parse a message packet");
+	ok($h{'resultcode'}, undef, "wrong result code");
+	ok($h{'type'}, 'message', "wrong packet type");
+	ok($h{'destination'}, $destination, "wrong message dst callsign");
+	ok($h{'messageid'}, $messageid, "wrong message id");
+	ok($h{'messageack'}, undef, "wrong message id in piggybacked replyack");
+	
+	# replyack http://www.aprs.org/aprs11/replyacks.txt
+	$destination = "OH7LZB   ";
+	my $replyack = 'f001';
+	$aprspacket = "$srccall>$dstcall,WIDE1-1,WIDE2-2,qAo,OH7AA::$destination:$message\{$messageid\}$replyack";
+	$retval = parseaprs($aprspacket, \%h);
+	$destination =~ s/\s+$//; # whitespace will be stripped, ok...
+	
+	ok($retval, 1, "failed to parse a message packet");
+	ok($h{'resultcode'}, undef, "wrong result code");
+	ok($h{'type'}, 'message', "wrong packet type");
+	ok($h{'destination'}, $destination, "wrong message dst callsign");
+	ok($h{'messageid'}, $messageid, "wrong message id");
+	ok($h{'messageack'}, $replyack, "wrong message id in piggybacked replyack");
 	
 	# ack
 	$destination = "OH7LZB   ";
