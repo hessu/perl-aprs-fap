@@ -2351,22 +2351,38 @@ sub _telemetry_parse($$)
 	
 	my ($seq, $v1, $v2, $v3, $v4, $v5, $bits);
 	my %t;
-	if ($s =~ s/^(\d+),(-|)(\d+|\d+\.\d+|\.\d+|),(-|)(\d+|\d+\.\d+|\.\d+|),(-|)(\d+|\d+\.\d+|\.\d+|),(-|)(\d+|\d+\.\d+|\.\d+|),(-|)(\d+|\d+\.\d+|\.\d+|),([01]{0,8})//) {
+	if ($s =~ /^(\d+),([\-\d\,\.]+)/) {
+		#warn "did match\n";
 		$t{'seq'} = $1;
-		my @vals = ( "$2$3", "$4$5", "$6$7", "$8$9", "$10$11" );
-		for (my $i = 0; $i <= $#vals; $i++) {
-			$vals[$i] = $vals[$i] eq '' ? 0 : $vals[$i] * 1.0;
-			# don't go all 64 bits on me quite yet
-			if ($vals[$i] > 2147483647 || $vals[$i] < -2147483648) {
-				_a_err($rh, 'tlm_large');
-				return 0;
+		my @vals = split(',', $2);
+		my @vout = ();
+		for (my $i = 0; $i <= 4; $i++) {
+			#warn "val $i: " . ($vals[$i]//'') . "\n";
+			my $v;
+			if (defined $vals[$i] && $vals[$i] ne '') {
+				if ($vals[$i] =~ /^-{0,1}(\d+|\d*\.\d+)$/) {
+					$v = $vals[$i] * 1.0;
+					# don't go all 64 bits on me quite yet
+					if ($v > 2147483647 || $v < -2147483648) {
+						_a_err($rh, 'tlm_large');
+						return 0;
+					}
+				} else {
+					_a_err($rh, 'tlm_inv');
+					return 0;
+				}
 			}
+			push @vout, $v;
 		}
-		$t{'vals'} = \@vals;
-		$t{'bits'} = $12;
-		# expand bits to 8 bits if some are missing
-		if ((my $l = length($t{'bits'})) < 8) {
-			$t{'bits'} .= '0' x (8-$l);
+		$t{'vals'} = \@vout;
+		
+		# TODO: validate bits
+		if (defined $vals[5]) {
+			$t{'bits'} = $vals[5];
+			# expand bits to 8 bits if some are missing
+			if ((my $l = length($t{'bits'})) < 8) {
+				$t{'bits'} .= '0' x (8-$l);
+			}
 		}
 	} else {
 		# todo: return an error code
