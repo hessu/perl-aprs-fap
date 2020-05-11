@@ -35,6 +35,7 @@ foreach my $messageid (@messageids) {
 	# replyack format but no ack http://www.aprs.org/aprs11/replyacks.txt
 	$destination = "OH7LZB   ";
 	$aprspacket = "$srccall>$dstcall,WIDE1-1,WIDE2-2,qAo,OH7AA::$destination:$message\{$messageid\}";
+	%h = ();
 	$retval = parseaprs($aprspacket, \%h);
 	$destination =~ s/\s+$//; # whitespace will be stripped, ok...
 	
@@ -43,12 +44,13 @@ foreach my $messageid (@messageids) {
 	ok($h{'type'}, 'message', "wrong packet type");
 	ok($h{'destination'}, $destination, "wrong message dst callsign");
 	ok($h{'messageid'}, $messageid, "wrong message id");
-	ok($h{'messageack'}, undef, "wrong message id in piggybacked replyack");
+	ok($h{'messageack'}, undef, "wrong message id in piggybacked replyack without ackid");
 	
 	# replyack http://www.aprs.org/aprs11/replyacks.txt
 	$destination = "OH7LZB   ";
 	my $replyack = 'f001';
 	$aprspacket = "$srccall>$dstcall,WIDE1-1,WIDE2-2,qAo,OH7AA::$destination:$message\{$messageid\}$replyack";
+	%h = ();
 	$retval = parseaprs($aprspacket, \%h);
 	$destination =~ s/\s+$//; # whitespace will be stripped, ok...
 	

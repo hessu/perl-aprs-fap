@@ -1374,10 +1374,10 @@ sub _message_parse($$$) {
 			return 1;
 		}
 		# separate message-id from the body, if present
-		if ($message =~ /^([^{]*)\{([A-Za-z0-9]{1,5})(}[A-Za-z0-9]{1,5}){0,1}\s*$/o) {
+		if ($message =~ /^([^{]*)\{([A-Za-z0-9]{1,5})(}[A-Za-z0-9]{1,5}|\}|)\s*$/o) {
 			$rethash->{'message'} = $1;
 			$rethash->{'messageid'} = $2;
-			if (defined $3) {
+			if (defined $3 && length($3) > 1) {
 				$rethash->{'messageack'} = substr($3, 1);
 			}
 		} else {
