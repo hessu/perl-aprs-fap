@@ -4,7 +4,7 @@
 
 use Test;
 
-BEGIN { plan tests => 2 + 2 + 4 + 2 };
+BEGIN { plan tests => 3 + 2 + 4 + 3 };
 use Ham::APRS::FAP qw(make_position);
 
 # check north/south, east/west and roundings for coordinates
@@ -13,6 +13,10 @@ ok(make_position(63.06716666666667, 27.6605, undef, undef, undef, '/#'),
 
 ok(make_position(-23.64266666666667, -46.797, undef, undef, undef, '/#'),
 	'!2338.56S/04647.82W#', 'Basic position, southwest, no speed/course/alt');
+
+# check for rounding causing values of 60 minutes (should be instead 59.99)
+ok(make_position(22.9999999, -177.9999999, undef, undef, undef, '/#'),
+	'!2259.99N/17759.99W#', 'Basic position minute rounding, no speed/course/alt');
 
 # optional speed/course and altitude
 ok(make_position(52.364, 14.1045, 83.34, 353, 95.7072, '/>'),
@@ -34,6 +38,9 @@ ok(make_position(52.364, 14.1045, undef, undef, undef, '/>', { 'ambiguity' => 4 
 # DAO
 ok(make_position(39.15380036630037, -84.62208058608059, undef, undef, undef, '/>', { 'dao' => 1 }),
 	'!3909.22N/08437.32W>!wjM!', 'DAO position, US');
+# DAO rounding
+ok(make_position(39.9999999, -84.9999999, undef, undef, undef, '/>', { 'dao' => 1 }),
+	'!3959.99N/08459.99W>!w{{!', 'DAO position, US');
 # DAO with speed, course, altitude, comment
 ok(make_position(48.37314835164835, 15.71477838827839, 62.968, 321, 192.9384, '/>', { 'dao' => 1, 'comment' => 'Comment blah' }),
 	'!4822.38N/01542.88E>321/034/A=000633Comment blah!wr^!', 'DAO position, EU');

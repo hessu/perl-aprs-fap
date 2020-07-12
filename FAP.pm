@@ -3427,6 +3427,11 @@ sub make_position($$$$$$;$)
 		} else {
 			$latmin_s = sprintf("%04.0f", $latmin * 100);
 		}
+		# check for rouding to 60 minutes and fix to 59.99 and DAO to 99
+		if ($latmin_s =~ /^60/) {
+			$latmin_s = "5999";
+			$latmin_dao = "99";
+		}
 		my $latstring = sprintf("%02d%02d.%02d", $latdeg, substr($latmin_s, 0, 2), substr($latmin_s, 2, 2));
 		my $posambiguity = $options->{'ambiguity'};
 		if (defined $posambiguity && $posambiguity > 0 && $posambiguity <= 4) {
@@ -3460,6 +3465,11 @@ sub make_position($$$$$$;$)
 			$lonmin_dao = substr($lonmin_s, 4, 2);
 		} else {
 			$lonmin_s = sprintf("%04.0f", $lonmin * 100);
+		}
+		# check for rouding to 60 minutes and fix to 59.99 and DAO to 99
+		if ($lonmin_s =~ /^60/) {
+			$lonmin_s = "5999";
+			$lonmin_dao = "99";
 		}
 		my $lonstring = sprintf("%03d%s.%s", $londeg, substr($lonmin_s, 0, 2), substr($lonmin_s, 2, 2));
 		if (defined $posambiguity && $posambiguity > 0 && $posambiguity <= 4) {
