@@ -3316,14 +3316,12 @@ Creates an APRS position for position/object/item. Parameters:
  6th: aprs symbol to use, first table/overlay and then code (two bytes). If string length is zero (""), uses default.
  7th: hash reference for options:
  
- "compressed": 1 for compressed format
+ "compression": 1 for compressed format
  "ambiguity": Use amount (0..4) of position ambiguity. Note that position ambiguity and compression can't be used at the same time.
  "dao": Use !DAO! extension for improved precision
 
 Returns a string such as "1234.56N/12345.67E/CSD/SPD" or in
 compressed form "F*-X;n_Rv&{-A" or undef on error.
-
-Please note: course/speed/altitude are not supported yet, and neither is compressed format or position ambiguity.
 
 This function API will probably change in the near future. The long list of
 parameters should be changed to hash with named parameters.
