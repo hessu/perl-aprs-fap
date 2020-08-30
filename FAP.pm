@@ -3319,7 +3319,7 @@ Creates an APRS position for position/object/item. Parameters:
  "compression": 1 for compressed format
  "ambiguity": Use amount (0..4) of position ambiguity. Note that position ambiguity and compression can't be used at the same time.
  "dao": Use !DAO! extension for improved precision
- "with_messaging": 1 to signal messaging capability, 0 for no messaging capability (default)
+ "messaging": 1 to signal messaging capability, 0 for no messaging capability (default)
  "timestamp": unix timestamp to include in the generated packet, 0 for current time.
               autoswitches from HMS to DHM when the timestamp is over 23 hours old
               and causes failure (returns undef) after 28 days because the timestamp
@@ -3564,13 +3564,13 @@ sub make_position($$$$$$;$)
 	
 	# add the correct packet type character based on messaging and timestamp
 	if (defined($options->{'timestamp'})) {
-		if (defined($options->{'with_messaging'}) && $options->{'with_messaging'} == 1) {
+		if (defined($options->{'messaging'}) && $options->{'messaging'} == 1) {
 			$retstring = '@' . $retstring;
 		} else {
 			$retstring = '/' . $retstring;
 		}
 	} else {
-		if (defined($options->{'with_messaging'}) && $options->{'with_messaging'} == 1) {
+		if (defined($options->{'messaging'}) && $options->{'messaging'} == 1) {
 			$retstring = '=' . $retstring;
 		} else {
 			$retstring = '!' . $retstring;
