@@ -174,7 +174,7 @@ my %result_messages = (
 	
 	'loc_short' => 'Too short uncompressed location',
 	'loc_inv' => 'Invalid uncompressed location',
-	'loc_large' => 'Degree value too large',
+	'loc_large' => 'Degree value in coordinates too large',
 	'loc_amb_inv' => 'Invalid position ambiguity',
 	
 	'mice_short' => 'Too short mic-e packet',
