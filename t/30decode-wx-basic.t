@@ -4,7 +4,7 @@
 
 use Test;
 
-BEGIN { plan tests => 16 + 14 + 14 + 15 };
+BEGIN { plan tests => 16 + 14 + 14 + 2 + 2 + 15 };
 use Ham::APRS::FAP qw(parseaprs);
 
 my $srccall = "OH2RDP-1";
@@ -82,6 +82,24 @@ ok($h{'wx'}->{'rain_1h'}, "0.0", "incorrect rain_1h parsing");
 ok($h{'wx'}->{'rain_24h'}, "5.1", "incorrect rain_24h parsing");
 ok($h{'wx'}->{'rain_midnight'}, "5.1", "incorrect rain_midnight parsing");
 
+# Full position + weather with no wind direction/course
+
+$aprspacket = 'N0CALL>APU25N,TCPIP*,qAC,T2TOKYO3:@011241z3558.58N/13629.67E_.../...g001t033r000p020P020b09860h98Oregon WMR100N Weather Station {UIV32N}';
+%h = ();
+$retval = parseaprs($aprspacket, \%h);
+
+ok($retval, 1, "failed to parse wx packet without wind direction/course");
+ok($h{'wx'}->{'wind_gust'}, "0.4", "incorrect wind gust parsing");
+
+# No wind and temperature, just rain
+
+$aprspacket = 'N0CALL>APJLSX,TCPIP*,qAS,KG4EXY:@061750z3849.10N/07725.10W_.../...g...t...r008p011P011b.....h..';
+%h = ();
+$retval = parseaprs($aprspacket, \%h);
+
+ok($retval, 1, "failed to parse wx packet without wind, gust or temperature");
+ok($h{'wx'}->{'rain_1h'}, "2.0", "incorrect rain_1h parsing");
+
 # positionless format with snowfall
 
 $aprspacket = 'JH9YVX>APU25N,TCPIP*,qAC,T2TOKYO3:_12032359c180s001g002t033r010p040P080b09860h98Os010L500';
@@ -106,5 +124,5 @@ ok($h{'wx'}->{'rain_24h'}, "10.2", "incorrect rain_24h parsing");
 ok($h{'wx'}->{'rain_midnight'}, "20.3", "incorrect rain_midnight parsing");
 
 ok($h{'wx'}->{'snow_24h'}, "2.5", "incorrect snow_24h parsing");
-ok($h{'wx'}->{'luminosity'}, "500", "incorrect l luminosity parsing");
+ok($h{'wx'}->{'luminosity'}, "500", "incorrect luminosity parsing");
 

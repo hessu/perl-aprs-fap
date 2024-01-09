@@ -2189,12 +2189,11 @@ sub _wx_parse($$)
 		$rh->{'comment'} = _cleanup_comment($s);
 	}
 	
-	if (defined $w{'temp'}
-	    || (defined $w{'wind_speed'} && defined $w{'wind_direction'})
-	    	) {
-	    		#warn "ok: $initial\n$s\n";
-	    		$rh->{'wx'} = \%w;
-	    		return 1;
+	# Return weather if any fields were found at all
+	if (%w) {
+		#warn "ok: $s\n";
+		$rh->{'wx'} = \%w;
+		return 1;
 	}
 	
 	return 0;
