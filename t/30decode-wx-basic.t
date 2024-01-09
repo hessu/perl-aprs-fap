@@ -4,7 +4,7 @@
 
 use Test;
 
-BEGIN { plan tests => 16 + 14 + 14 + 2 + 2 + 15 };
+BEGIN { plan tests => 16 + 14 + 14 + 2 + 2 + 2 + 15 };
 use Ham::APRS::FAP qw(parseaprs);
 
 my $srccall = "OH2RDP-1";
@@ -99,6 +99,15 @@ $retval = parseaprs($aprspacket, \%h);
 
 ok($retval, 1, "failed to parse wx packet without wind, gust or temperature");
 ok($h{'wx'}->{'rain_1h'}, "2.0", "incorrect rain_1h parsing");
+
+# Space in wind gust field
+
+$aprspacket = 'N0CALL>APU25N,TCPIP*,qAC,T2TOKYO3:@011241z3558.58N/13629.67E_.../...g   t033r000p020P020b09860h98Oregon WMR100N Weather Station {UIV32N}';
+%h = ();
+$retval = parseaprs($aprspacket, \%h);
+
+ok($retval, 1, "failed to parse wx packet with spaces in wind gust");
+ok($h{'wx'}->{'temp'}, "0.6", "incorrect temperature parsing");
 
 # positionless format with snowfall
 

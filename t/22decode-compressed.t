@@ -4,7 +4,7 @@
 
 use Test;
 
-BEGIN { plan tests => 49 + 1 + 7 };
+BEGIN { plan tests => 49 + 1 + 8 + 2 };
 use Ham::APRS::FAP qw(parseaprs);
 
 my $srccall = "OH2KKU-15";
@@ -111,7 +111,7 @@ ok($retval, 0, "erroneously decoded a too short compressed packet without speed/
 
 ### compressed packet with weather
 
-$aprspacket = 'SV4IKL-2>APU25N,WIDE2-2,qAR,SV6EXB-1:@011444z/:JF!T/W-_e!bg000t054r000p010P010h65b10073WS 2300 {UIV32N}';
+$aprspacket = 'SV4IKL-2>APU25N,WIDE2-2,qAR,SV6EXB-1:@011444z/:JF!T/W-_e!bg001t054r000p010P010h65b10073WS 2300 {UIV32N}';
 %h = ();
 $retval = parseaprs($aprspacket, \%h);
 
@@ -120,7 +120,17 @@ ok($h{'symboltable'}, '/', "incorrect symboltable parsing (compressed+wx)");
 ok($h{'symbolcode'}, '_', "incorrect symbolcode parsing (compressed+wx)");
 ok($h{'comment'}, 'WS 2300 {UIV32N}', "incorrect comment parsing (compressed+wx)");
 
+ok($h{'wx'}->{'wind_gust'}, "0.4", "incorrect wind_gust parsing");
 ok($h{'wx'}->{'temp'}, "12.2", "incorrect temperature parsing");
 ok($h{'wx'}->{'humidity'}, 65, "incorrect humidity parsing");
 ok($h{'wx'}->{'pressure'}, "1007.3", "incorrect pressure parsing");
 
+### compressed packet with weather, but space in wind gust
+
+$aprspacket = 'SV4IKL-2>APU25N,WIDE2-2,qAR,SV6EXB-1:@011444z/:JF!T/W-_e!bg   t054r000p010P010h65b10073WS 2300 {UIV32N}';
+%h = ();
+$retval = parseaprs($aprspacket, \%h);
+
+ok($retval, 1, "failed to parse a compressed packet with weather data");
+
+ok($h{'wx'}->{'temp'}, "12.2", "incorrect temperature parsing");
