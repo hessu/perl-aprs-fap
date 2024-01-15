@@ -2354,7 +2354,7 @@ sub _telemetry_parse($$)
 	my %t;
 	if ($s =~ /^(\d+),([\-\d\,\.]+)/) {
 		#warn "did match\n";
-		$t{'seq'} = $1;
+		$t{'seq'} = int($1);
 		my @vals = split(',', $2);
 		my @vout = ();
 		for (my $i = 0; $i <= 4; $i++) {

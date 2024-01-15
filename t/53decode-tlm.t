@@ -71,7 +71,7 @@ ok($retval, 1, "failed to parse a very short telemetry packet");
 ok($h{'resultcode'}, undef, "wrong result code");
 %t = %{ $h{'telemetry'} };
 
-ok($t{'seq'}, "001", "wrong sequence number parsed from relaxed telemetry");
+ok($t{'seq'}, 1, "wrong sequence number parsed from relaxed telemetry");
 ok($t{'bits'}, undef, "wrong bits parsed from relaxed telemetry");
 ok(defined $t{'vals'}, 1, "no value array parsed from relaxed telemetry");
 
