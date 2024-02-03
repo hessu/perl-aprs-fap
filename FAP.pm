@@ -1377,7 +1377,9 @@ sub _message_parse($$$) {
 		if ($message =~ /^([^{]*)\{([A-Za-z0-9]{1,5})(}[A-Za-z0-9]{1,5}|\}|)\s*$/o) {
 			$rethash->{'message'} = $1;
 			$rethash->{'messageid'} = $2;
-			if (defined $3 && length($3) > 1) {
+			# even an empty replyack is needed, for replying with a correct ack,
+			# and for recording support of replyacks
+			if (defined $3 && length($3) > 0) {
 				$rethash->{'messageack'} = substr($3, 1);
 			}
 		} else {
