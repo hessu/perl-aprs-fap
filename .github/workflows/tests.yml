@@ -23,7 +23,7 @@ jobs:
 
     - name: perl Makefile.PL
       run: |
-        perl Makefile.pL
+        perl Makefile.PL
 
     - name: make
       run: |
