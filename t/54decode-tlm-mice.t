@@ -1,5 +1,6 @@
 
-# test mic-e telemetry decoding
+# test mic-e Base91 telemetry decoding
+# specification: https://github.com/hessu/aprs-specs/blob/master/aprs-base91-comment-telemetry.txt
 
 use Test;
 #use Data::Dumper;
