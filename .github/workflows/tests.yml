@@ -19,7 +19,8 @@ jobs:
     - name: install deps
       run: |
         sudo apt-get install -y \
-            perl perl-modules
+            perl perl-modules \
+            libdate-calc-perl
 
     - name: perl Makefile.PL
       run: |
