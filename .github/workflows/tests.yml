@@ -1,0 +1,35 @@
+name: Build Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: install deps
+      run: |
+        sudo apt-get install -y \
+            perl perl-modules
+
+    - name: perl Makefile.PL
+      run: |
+        perl Makefile.pL
+
+    - name: make
+      run: |
+        make -j4
+
+    - name: make test
+      run: |
+        make test
+
