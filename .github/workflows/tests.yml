@@ -20,7 +20,8 @@ jobs:
       run: |
         sudo apt-get install -y \
             perl perl-modules \
-            libdate-calc-perl
+            libdate-calc-perl \
+            libtest-pod-perl libtest-pod-coverage-perl
 
     - name: perl Makefile.PL
       run: |
