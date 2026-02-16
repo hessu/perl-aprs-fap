@@ -52,8 +52,9 @@ THINGS TO DO
 
 SEE ALSO
 
+  https://github.com/hessu/go-aprs-fap - Go port of Ham::APRS::FAP
   http://pakettiradio.net/libfap/ - C library port of Ham::APRS::FAP
-  http://github.com/kd7lxl/python-libfap - Python bindings for libfap
+  https://github.com/kd7lxl/python-libfap - Python bindings for libfap
 
 COPYRIGHT AND LICENCE
 
